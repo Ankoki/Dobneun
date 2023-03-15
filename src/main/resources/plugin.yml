@@ -1,0 +1,4 @@
+name: Dobneun
+main: com.ankoki.dobneun.Plugin
+version: 1.0
+load: STARTUP
