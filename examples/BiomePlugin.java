@@ -25,7 +25,7 @@ public class BiomePlugin extends JavaPlugin implements Listener {
 						.setGrassColour("#3A1007") // The # is optional.
 						.setSkyColour("#FF937C") // Exceptions will be thrown if not a liable colour.
 						.setWaterColour("#1E2040")
-						.setWaterFogColour("#693d36")
+						.setWaterFogColour("#693D36")
 						.setFoliageColourOverride("#B19591")
 						.setGrassColourModifier(GrassColourModifier.NONE) // The default, just to show.
 						.setAmbientParticle(new AmbientParticle()

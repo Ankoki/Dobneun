@@ -68,22 +68,24 @@ public class CustomBiome {
 	 * @param bukkit  the chunk to set this biome to.
 	 */
 	public static void setBiome(CustomBiome custom, Chunk bukkit) {
-		LevelChunk chunk = ((CraftChunk) bukkit).getHandle();
-		Holder<Biome> base = custom.getHolder();
-		if (base != null) {
-			for (LevelChunkSection section : chunk.getSections()) {
-				for (int x = 0; x < 4; x++)
-					for (int z = 0; z < 4; z++)
-						for (int y = 0; y < bukkit.getWorld().getMaxHeight(); y++)
-							section.setBiome(x, y, z, base);
-			}
-			ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(chunk, chunk.level.getLightEngine(), null, null, true, true);
-			for (Player player : bukkit.getWorld().getPlayers()) {
-				if (player.isOnline() && player.getLocation().distance(bukkit.getBlock(0, 0, 0).getLocation()) < (Bukkit.getServer().getViewDistance() * 16))
-					((CraftPlayer) player).getHandle().connection.send(packet);
-			}
-		} else
-			Misc.handleException(new IllegalArgumentException("Biome '" + custom.getKey() + "' has not been registered yet."));
+		try {
+			LevelChunk chunk = ((CraftChunk) bukkit).getHandle();
+			Holder<Biome> base = custom.getHolder();
+			if (base != null) {
+				for (LevelChunkSection section : chunk.getSections()) {
+					for (int x = 0; x < 4; x++)
+						for (int z = 0; z < 4; z++)
+							for (int y = 0; y < 4; y++)
+								section.setBiome(x, y, z, base);
+				}
+				ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(chunk, chunk.level.getLightEngine(), null, null, true, true);
+				for (Player player : bukkit.getWorld().getPlayers()) {
+					if (player.isOnline() && player.getLocation().distance(bukkit.getBlock(0, 0, 0).getLocation()) < (Bukkit.getServer().getViewDistance() * 16))
+						((CraftPlayer) player).getHandle().connection.send(packet);
+				}
+			} else
+				throw new IllegalArgumentException("Biome '" + custom.getKey() + "' has not been registered yet.");
+		} catch (Exception ex) { Misc.handleException(ex); }
 	}
 
 	/**

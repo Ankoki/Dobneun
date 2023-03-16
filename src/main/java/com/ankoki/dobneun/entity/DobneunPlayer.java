@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-// UNUSED
+// CURRENTLY UNUSED
 public class DobneunPlayer {
 
 	private static final Map<Player, DobneunPlayer> storage = new ConcurrentHashMap<>();
@@ -33,7 +33,7 @@ public class DobneunPlayer {
 	private Object handle, connection;
 
 	/**
-	 * Creates a new RPlayer for using reflection methods easier.
+	 * Creates a new DobneunPlayer for using reflection methods easier.
 	 *
 	 * @param player the player to wrap.
 	 */
@@ -48,7 +48,7 @@ public class DobneunPlayer {
 				this.handle = getHandle.invoke(player);
 				this.connection = connectionField.get(handle);
 				storage.put(player, this);
-			} catch (ReflectiveOperationException ex) { Misc.handleException(ex); }
+			} catch (ReflectiveOperationException ex) { Misc.handleException(ex, player); }
 		}
 	}
 

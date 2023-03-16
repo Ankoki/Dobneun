@@ -4,7 +4,9 @@ import com.ankoki.dobneun.Dobneun;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Misc {
 
@@ -13,7 +15,7 @@ public class Misc {
 	 *
 	 * @param ex the exception that was thrown.
 	 */
-	public static void handleException(Exception ex) {
+	public static void handleException(Exception ex, Player... players) {
 		Logger logger = Dobneun.getLogger();
 		String message = ex.getLocalizedMessage();
 		logger.severe("# There was an issue with Dobneun.");
@@ -29,13 +31,19 @@ public class Misc {
 		logger.severe("# ");
 		logger.severe("# Minecraft Server Version: " + Dobneun.getMinecraftVersion());
 		logger.severe("# Dobneun Version: " + Dobneun.getVersion());
+		logger.severe("# Players Online: " + Bukkit.getOnlinePlayers().size());
 		logger.severe("# ");
+		if (players.length > 0) {
+			logger.severe("# Related Player(s): " + Arrays.stream(players)
+					.map(Player::getName)
+					.collect(Collectors.joining(", ")));
+			logger.severe("# ");
+		}
 		for (Player player : Bukkit.getOnlinePlayers()
 				.stream()
 				.filter(p -> p.hasPermission("dobneun.error_messages"))
-				.toList()) {
+				.toList())
 			player.sendActionBar("§cThere was an internal error §7: §c" + message);
-		}
 	}
 
 }
