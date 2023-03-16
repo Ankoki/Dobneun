@@ -106,8 +106,10 @@ public class CustomBiome {
 		MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
 		ResourceKey<Biome> key = ResourceKey.create(Registries.BIOME, new ResourceLocation("minecraft", "forest"));
 		Optional<Registry<Biome>> optional = server.registryAccess().registry(Registries.BIOME);
-		if (optional.isEmpty())
-			throw new RuntimeException("Registry was not found while copying defaults. What happened?");
+		if (optional.isEmpty()) {
+			Misc.handleException(new RuntimeException("Registry was not found while copying defaults. What happened?"));
+			return this;
+		}
 		Registry<Biome> registry = optional.get();
 		Biome base = registry.get(key);
 		this.biome.mobSpawnSettings(base.getMobSettings());

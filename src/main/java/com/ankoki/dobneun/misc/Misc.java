@@ -14,6 +14,7 @@ public class Misc {
 	 * Handles an internal exception.
 	 *
 	 * @param ex the exception that was thrown.
+	 * @param players any related players.
 	 */
 	public static void handleException(Exception ex, Player... players) {
 		Logger logger = Dobneun.getLogger();
