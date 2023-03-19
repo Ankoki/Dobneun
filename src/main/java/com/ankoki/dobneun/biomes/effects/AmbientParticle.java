@@ -1,4 +1,4 @@
-package com.ankoki.dobneun.biomes;
+package com.ankoki.dobneun.biomes.effects;
 
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -146,8 +146,8 @@ public class AmbientParticle {
 		LANDING_LAVA(ParticleTypes.LANDING_LAVA),
 		DRIPPING_WATER(ParticleTypes.DRIPPING_WATER),
 		FALLING_WATER(ParticleTypes.FALLING_WATER),
-		DUST(ParticleTypes.DUST), // TODO figure out how to add colour.
-		DUST_COLOUR_TRANSITION(ParticleTypes.DUST_COLOR_TRANSITION), // TODO figure out how to add colour transition.
+		DUST(ParticleTypes.DUST),
+		DUST_COLOUR_TRANSITION(ParticleTypes.DUST_COLOR_TRANSITION), // TODO add colour transition.
 		EFFECT(ParticleTypes.EFFECT),
 		ELDER_GUARDIAN(ParticleTypes.ELDER_GUARDIAN),
 		ENCHANTED_HIT(ParticleTypes.ENCHANTED_HIT),

@@ -56,6 +56,11 @@ public record Dobneun(JavaPlugin plugin) {
 		return logger;
 	}
 
+	public Dobneun(JavaPlugin plugin) {
+		this.plugin = plugin;
+		logger.info("Plugin '" + plugin.getName() + "' has successfully hooked into Dobneun.");
+	}
+
 	/**
 	 * Wraps a bukkit player to a DobneunPlayer.
 	 *

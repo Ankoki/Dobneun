@@ -1,4 +1,4 @@
-package com.ankoki.dobneun.biomes;
+package com.ankoki.dobneun.biomes.effects;
 
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 

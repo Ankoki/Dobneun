@@ -47,4 +47,19 @@ public class Misc {
 			player.sendActionBar("§cThere was an internal error §7: §c" + message);
 	}
 
+	/**
+	 * Gets an enum value safely which returns null if not found. Whitespace and lowercase letters will be converted to
+	 * uppercase and _.
+	 *
+	 * @param type the class of the enum.
+	 * @param name the name of the value to look for.
+	 * @param <E>  the class which extends enum to get the value for.
+	 * @return the found value, or null.
+	 */
+	public static <E extends Enum<E>> E get(Class<E> type, String name) {
+		try {
+			return Enum.valueOf(type, name.replace(" ", "_").toUpperCase());
+		} catch (NullPointerException | IllegalArgumentException ex) { return null; }
+	}
+
 }

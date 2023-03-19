@@ -1,5 +1,6 @@
-package com.ankoki.dobneun.biomes;
+package com.ankoki.dobneun.biomes.effects;
 
+import com.ankoki.dobneun.biomes.CustomBiome;
 import net.minecraft.sounds.Music;
 
 /**
@@ -227,7 +228,7 @@ public class BiomeEffects {
 	 * @param music the music to set it too.
 	 * @return the current instance for chaining.
 	 */
-	public BiomeEffects setMusic(com.ankoki.dobneun.biomes.Music music) {
+	public BiomeEffects setMusic(com.ankoki.dobneun.biomes.effects.Music music) {
 		if (!music.hasOptions())
 			return this;
 		this.music = new Music(music.getOption().getHolder(), music.getMinDelay(), music.getMaxDelay(), music.willReplaceCurrent());

@@ -1,5 +1,9 @@
 package com.ankoki.dobneun.biomes;
 
+import com.ankoki.dobneun.Dobneun;
+import com.ankoki.dobneun.biomes.effects.AmbientParticle;
+import com.ankoki.dobneun.biomes.effects.BiomeEffects;
+import com.ankoki.dobneun.biomes.entities.BiomeEntity;
 import com.ankoki.dobneun.misc.Misc;
 import com.ankoki.dobneun.reflection.Reflection;
 import net.minecraft.core.Holder;
@@ -12,25 +16,31 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biome.BiomeBuilder;
 import net.minecraft.world.level.biome.BiomeSpecialEffects.Builder;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.craftbukkit.v1_19_R2.CraftChunk;
-import org.bukkit.craftbukkit.v1_19_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R3.CraftChunk;
+import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import java.awt.*;
+import java.awt.Color;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -42,12 +52,16 @@ import java.util.Optional;
 public class CustomBiome {
 
 	private final ResourceKey<Biome> key;
+	private final JavaPlugin owner;
+	private final String name;
 	private final BiomeBuilder biome = new BiomeBuilder();
 	private BiomeEffects effects;
 	private float downfall = 0.8F;
 	private float temperature = 0.7F;
 	private TemperatureModifier temperatureModifier = TemperatureModifier.NONE;
 	private Precipitation precipitation = Precipitation.NONE;
+	private final List<BiomeEntity> entities = new ArrayList<>();
+	private float creatureGenerationProbability = 0.07F;
 	@Nullable
 	private Holder<Biome> holder;
 
@@ -58,7 +72,9 @@ public class CustomBiome {
 	 * @param name   the name of the biome. Must have a unique name and be lowercase.
 	 */
 	public CustomBiome(JavaPlugin plugin, String name) {
-		this.key = ResourceKey.create(Registries.BIOME, new ResourceLocation(plugin.getName().toLowerCase(), name.toLowerCase()));
+		this.owner = plugin;
+		this.name = name.toLowerCase();
+		this.key = ResourceKey.create(Registries.BIOME, new ResourceLocation(plugin.getName().toLowerCase(), this.name));
 	}
 
 	/**
@@ -95,6 +111,24 @@ public class CustomBiome {
 	 */
 	public ResourceKey<Biome> getKey() {
 		return key;
+	}
+
+	/**
+	 * Gets the plugin which owns this biome.
+	 *
+	 * @return the owner.
+	 */
+	public JavaPlugin getOwner() {
+		return owner;
+	}
+
+	/**
+	 * Gets the name this biome was registered under.
+	 *
+	 * @return the name of the biome.
+	 */
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -230,6 +264,46 @@ public class CustomBiome {
 	}
 
 	/**
+	 * Gets the current creature generation probability.
+	 *
+	 * @return the creature generation probability.
+	 */
+	public float getCreatureGenerationProbability() {
+		return creatureGenerationProbability;
+	}
+
+	/**
+	 * Sets the probability of creatures generating.
+	 *
+	 * @param creatureGenerationProbability the probability.
+	 * @return the current instance for chaining.
+	 */
+	public CustomBiome setCreatureGenerationProbability(float creatureGenerationProbability) {
+		this.creatureGenerationProbability = creatureGenerationProbability;
+		return this;
+	}
+
+	/**
+	 * Gets the entities which this entity will spawn.
+	 *
+	 * @return the entities.
+	 */
+	public List<BiomeEntity> getEntities() {
+		return entities;
+	}
+
+	/**
+	 * Adds the given entity to the monster generation.
+	 *
+	 * @param entity the entity to add.
+	 * @return the current instances for chaining.
+	 */
+	public CustomBiome addEntity(BiomeEntity entity) {
+		this.entities.add(entity);
+		return this;
+	}
+
+	/**
 	 * Gets the holder of this biome. {@link CustomBiome#register()} must be called first, otherwise this will be null.
 	 *
 	 * @return the holder of the biome.
@@ -259,7 +333,7 @@ public class CustomBiome {
 		}
 		this.biome.downfall(this.downfall);
 		this.biome.temperature(this.temperature);
-		this.biome.precipitation(this.precipitation.getRoot());
+		this.biome.hasPrecipitation(this.precipitation != Precipitation.NONE);
 		this.biome.temperatureAdjustment(this.temperatureModifier.getRoot());
 		Builder builder = new Builder();
 		builder.fogColor(this.effects.getFogColour());
@@ -289,6 +363,18 @@ public class CustomBiome {
 					builder.ambientParticle(new AmbientParticleSettings(new DustParticleOptions(vec, particle.getScale()), probability));
 				}
 			}
+		}
+		if (this.entities.size() > 0) {
+			MobSpawnSettings.Builder settingsBuilder = new MobSpawnSettings.Builder();
+			// TODO mob spawn cost
+			for (BiomeEntity entity : this.entities) {
+				MobCategory category = entity.getSpawnCategory().getRoot();
+				EntityType<?> type = entity.getEntityType().getRoot();
+				MobSpawnSettings.SpawnerData data = new MobSpawnSettings.SpawnerData(type, entity.getWeight(), entity.getMinimumGroupSize(), entity.getMaximumGroupSize());
+				settingsBuilder.addSpawn(category, data);
+			}
+			settingsBuilder.creatureGenerationProbability(this.creatureGenerationProbability);
+			this.biome.mobSpawnSettings(settingsBuilder.build());
 		}
 		this.biome.specialEffects(builder.build());
 		MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
