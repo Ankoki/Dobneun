@@ -1,11 +1,48 @@
-## 돕는 [사람] (Dobneun [Salam])  
+# 돕는 [사람] (Dobneun [Salam])  
   
 Dobneun is a helper for NMS related protocols, providing features such as:  
 - [Custom Biomes](#CUSTOM-BIOMES)
 - [Packets (W.I.P)](#PACKETS-(W.I.P))
 - [Reflection](#REFLECTION)  
   
-Below you can find more information about how to use these sections.
+Below you can find more information about how to use these sections.  
+You can see how to include Dobneun in your projects [here](#INCLUDING-DOBNEUN-IN-YOUR-PROJECT).  
+  
+## INCLUDING DOBNEUN IN YOUR PROJECT  
+Including Dobneun in your projects is incredibly easy with the help of Maven or Gradle.  
+You can copy either one of these examples.  
+  
+**GRADLE**
+```gradle
+repositories {
+    maven { url 'https://hat.lordoftherin.gs/releases/dev-builds/' }
+}
+
+dependencies {
+    implementation 'com.ankoki:Dobneun:1.0-DEV'
+}
+```  
+  
+**MAVEN**  
+```xml
+    <repositories>
+        <repository>
+            <id>Ankoki-Releases</id>
+            <url>https://hat.lordoftherin.gs/releases/dev-builds/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.ankoki</groupId>
+            <artifactId>Dobneun</artifactId>
+            <version>1.0-DEV</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+```  
+  
+Please remember it is crucial to shade Dobneun into your plugin. You can use `maven-shade-plugin` for Maven, or `shadowJar` for Gradle.
 
 ### CUSTOM BIOMES  
 Custom biomes are something that are regularly sought after, and with the help of Dobneun,

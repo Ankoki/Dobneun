@@ -1,10 +1,11 @@
 plugins {
     id 'java'
     id 'io.papermc.paperweight.userdev' version '1.5.3'
+    id 'maven-publish'
 }
 
 group 'com.ankoki'
-version '1.0-SNAPSHOT'
+version '1.0-DEV'
 
 repositories {
     mavenCentral()
@@ -14,6 +15,37 @@ repositories {
 dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
     paperweightDevelopmentBundle 'io.papermc.paper:dev-bundle:1.19.4-R0.1-SNAPSHOT'
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            version = version
+            groupId = 'com.ankoki'
+            artifactId = 'Dobneun'
+        }
+    }
+    repositories {
+        maven {
+            name = 'Dobneun'
+            url = version.endsWith('DEV') || version.endsWith('BETA') ? 'https://hat.lordoftherin.gs/releases/dev-builds/' : 'https://hat.lordoftherin.gs/releases/'
+            credentials {
+                username = project.repoUser
+                password = project.repoPassword
+            }
+        }
+    }
+}
+
+wrapper {
+    gradleVersion = "7.3.3"
+    distributionType = Wrapper.DistributionType.ALL
 }
 
 test {
