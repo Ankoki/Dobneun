@@ -1,6 +1,5 @@
 package com.ankoki.dobneun.biomes;
 
-import com.ankoki.dobneun.Dobneun;
 import com.ankoki.dobneun.biomes.effects.AmbientParticle;
 import com.ankoki.dobneun.biomes.effects.BiomeEffects;
 import com.ankoki.dobneun.biomes.entities.BiomeEntity;
@@ -16,6 +15,7 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
@@ -28,9 +28,9 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.craftbukkit.v1_19_R3.CraftChunk;
-import org.bukkit.craftbukkit.v1_19_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R2.CraftChunk;
+import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -85,7 +85,13 @@ public class CustomBiome {
 	 */
 	public static void setBiome(CustomBiome custom, Chunk bukkit) {
 		try {
-			LevelChunk chunk = ((CraftChunk) bukkit).getHandle();
+			int axisOne = bukkit.getX();
+			int axisTwo = bukkit.getZ();
+			// TODO find out what this is when obfuscated.
+			// TO DO THIS, LOAD ON A SERVER AND LOOP ALL FIELDS OF CRAFTCHUNK AMD FIND THE ONE WITH A SERVERLEVEL TYPE.
+			Field field = Reflection.getField(CraftChunk.class, "worldServer");
+			ServerLevel level = (ServerLevel) field.get(bukkit);
+			LevelChunk chunk = level.getChunk(axisOne, axisTwo);
 			Holder<Biome> base = custom.getHolder();
 			if (base != null) {
 				for (LevelChunkSection section : chunk.getSections()) {
@@ -94,7 +100,7 @@ public class CustomBiome {
 							for (int y = 0; y < 4; y++)
 								section.setBiome(x, y, z, base);
 				}
-				ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(chunk, chunk.level.getLightEngine(), null, null, true, true);
+				ClientboundLevelChunkWithLightPacket packet = new ClientboundLevelChunkWithLightPacket(chunk, chunk.level.getLightEngine(), null, null, true);
 				for (Player player : bukkit.getWorld().getPlayers()) {
 					if (player.isOnline() && player.getLocation().distance(bukkit.getBlock(0, 0, 0).getLocation()) < (Bukkit.getServer().getViewDistance() * 16))
 						((CraftPlayer) player).getHandle().connection.send(packet);

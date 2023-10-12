@@ -18,6 +18,19 @@ public class Reflection {
 	public static final String VERSION_PACKAGE = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
 
 	/**
+	 * Checks if a class exists.
+	 *
+	 * @param clazz the class to look for.
+	 * @return true if it exists.
+	 */
+	public static boolean classExists(String clazz) {
+		try {
+			Class.forName(clazz);
+			return true;
+		} catch (ReflectiveOperationException ex) { return false; }
+	}
+
+	/**
 	 * Gets the NMS class, taking into account minecraft version.
 	 *
 	 * @param newPackage the 1.18+ version package.
@@ -37,6 +50,7 @@ public class Reflection {
 	 * @param clazz the class to retrieve.
 	 * @return the class object.
 	 */
+	@Nullable
 	public static Class<?> getCraftBukkit(String clazz) {
 		try {
 			return Class.forName("org.bukkit.craftbukkit." + Version.CURRENT.name() + "." + clazz);
